@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as TemplateRouteImport } from './routes/template'
 import { Route as EsbocoIdRouteImport } from './routes/esboco.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TemplateRoute = TemplateRouteImport.update({
+  id: '/template',
+  path: '/template',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EsbocoIdRoute = EsbocoIdRouteImport.update({
   id: '/esboco/$id',
   path: '/esboco/$id',
@@ -32,30 +38,34 @@ const EsbocoIdRoute = EsbocoIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/template': typeof TemplateRoute
   '/esboco/$id': typeof EsbocoIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/template': typeof TemplateRoute
   '/esboco/$id': typeof EsbocoIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/template': typeof TemplateRoute
   '/esboco/$id': typeof EsbocoIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/esboco/$id'
+  fullPaths: '/' | '/admin' | '/template' | '/esboco/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/esboco/$id'
-  id: '__root__' | '/' | '/admin' | '/esboco/$id'
+  to: '/' | '/admin' | '/template' | '/esboco/$id'
+  id: '__root__' | '/' | '/admin' | '/template' | '/esboco/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  TemplateRoute: typeof TemplateRoute
   EsbocoIdRoute: typeof EsbocoIdRoute
 }
 
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/template': {
+      id: '/template'
+      path: '/template'
+      fullPath: '/template'
+      preLoaderRoute: typeof TemplateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/esboco/$id': {
       id: '/esboco/$id'
       path: '/esboco/$id'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  TemplateRoute: TemplateRoute,
   EsbocoIdRoute: EsbocoIdRoute,
 }
 export const routeTree = rootRouteImport
