@@ -21,7 +21,7 @@ export async function generatePdf(draft: Draft | null) {
   doc.text("CÓDIGO DA PREGAÇÃO MEMORÁVEL - TEMPLATE OFICIAL", M, y);
   y += 36;
   doc.setFont("times", "normal").setFontSize(32).setTextColor(...INK);
-  const title = draft ? (draft.tema?.trim() || "Minha Pregação") : "Template em Branco";
+  const title = draft ? (draft['tema']?.trim() || "Minha Pregação") : "Template em Branco";
   for (const l of doc.splitTextToSize(title, maxW)) { doc.text(l, M, y); y += 36; }
   doc.setDrawColor(234, 230, 225).line(M, y, W - M, y);
   y += 28;
