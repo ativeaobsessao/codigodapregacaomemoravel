@@ -1,19 +1,26 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Instagram, Download, Check, ChevronDown } from "lucide-react";
+import { ArrowLeft, Instagram, Check, ChevronDown } from "lucide-react";
 import { STEPS, STORAGE_KEY, IG_HANDLE, IG_URL, type Draft } from "@/features/template/fields";
 import { ANA_EXAMPLE, FIELD_HELP } from "@/features/template/example";
 import { generatePdf } from "@/features/template/pdf";
+import { esbocoToDraft, saveDraft, enviarWhatsApp } from "@/features/template/share";
+import { ActionButton } from "@/features/template/ActionButton";
+import { getEsboco } from "@/features/esbocos/api";
 import { SiteFooter } from "@/components/SiteHeader";
 
 export const Route = createFileRoute("/template")({
+  validateSearch: (s: Record<string, unknown>): { personalizar?: string } =>
+    typeof s['personalizar'] === "string" ? { personalizar: s['personalizar'] } : {},
   head: () => ({
     meta: [
       { title: "Template Oficial — Código da Pregação Memorável" },
       { name: "description", content: "Preencha os 12 passos da sua pregação memorável com salvamento automático e baixe em PDF." },
       { property: "og:title", content: "Template Oficial — Código da Pregação Memorável" },
       { property: "og:description", content: "Editor dos 12 passos com auto-save e PDF premium." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: TemplatePage,
@@ -26,10 +33,12 @@ function readStore(): { data: Draft; savedAt?: string } | null {
 }
 
 function TemplatePage() {
+  const { personalizar } = Route.useSearch();
+  const navigate = useNavigate();
   const [draft, setDraft] = useState<Draft>({});
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [showEx, setShowEx] = useState(false);
-  const [openHelp, setOpenHelp] = useState<string | null>(null);
+  const [banner, setBanner] = useState(false);
   const loaded = useRef(false);
 
   const save = (d: Draft) => {
@@ -39,9 +48,29 @@ function TemplatePage() {
   };
 
   useEffect(() => {
+    if (personalizar) {
+      getEsboco(personalizar)
+        .then((e) => {
+          if (!e) throw new Error();
+          const d = esbocoToDraft(e);
+          saveDraft(d, e.id);
+          setDraft(d); setSavedAt(now()); setBanner(true);
+        })
+        .catch(() => {
+          toast.error("Não conseguimos abrir esse esboço.");
+          const s = readStore();
+          if (s) setDraft(s.data ?? {});
+        })
+        .finally(() => {
+          loaded.current = true;
+          navigate({ to: "/template", search: {}, replace: true });
+        });
+      return;
+    }
     const s = readStore();
     if (s) { setDraft(s.data ?? {}); setSavedAt(s.savedAt ?? null); }
     loaded.current = true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -76,6 +105,11 @@ function TemplatePage() {
       </header>
 
       <main className="mx-auto max-w-[900px] px-6 py-14">
+        {banner && (
+          <div className="mb-10 rounded-lg border border-success bg-success-soft p-5 text-[17px] text-success">
+            ✅ Você clicou em QUERO USAR ESSE ESBOÇO. Esse esboço foi copiado aqui para baixo. Agora é só trocar o que quiser com suas palavras. Tudo salva sozinho.
+          </div>
+        )}
         <h1 className="font-serif text-[36px] leading-tight md:text-[44px]">Template para uma pregação memorável</h1>
         <p className="mt-4 text-[18px] text-foreground">
           Preencha as 12 caixinhas abaixo com suas palavras e baixe sua pregação pronta em PDF. Tudo salva sozinho.
@@ -153,8 +187,8 @@ function TemplatePage() {
           <p className="mt-2 text-[17px] text-muted-foreground">Escreva com suas palavras. Pode ser simples. Tudo salva sozinho.</p>
 
           <div className="sticky top-0 z-10 -mx-6 mt-6 flex flex-wrap items-center gap-3 border-b border-border bg-background px-6 py-3">
-            <span className="inline-flex items-center gap-1 rounded-full bg-success-soft px-3 py-1 text-[13px] font-medium text-success">
-              <Check className="h-4 w-4" /> {savedAt ? `Salvo automaticamente • ${savedAt}` : "Salvamento automático ativo"}
+            <span className="inline-flex items-center gap-1 rounded-lg bg-success-soft px-3 py-2 text-[14px] font-medium text-success">
+              ✅ Fique tranquila, tudo que você digitar aqui fica salvo sozinho. Pode fechar e voltar depois.{savedAt ? ` (${savedAt})` : ""}
             </span>
             <button className="btn-line" onClick={() => { save(draft); toast.success("Salvo"); }}>Salvar Agora</button>
             <button className="btn-line" onClick={restore}>Restaurar Rascunho</button>
@@ -168,22 +202,13 @@ function TemplatePage() {
                   <span className="font-serif text-[40px] leading-none text-gold">{s.n}</span>
                   <span className="text-[16px] font-bold uppercase tracking-[0.06em]">{s.title}</span>
                 </h3>
-                <div className="space-y-5">
+                <div className="space-y-6">
                   {s.fields.map((f) => {
                     const h = FIELD_HELP[f.key];
-                    const open = openHelp === f.key;
+                    const label = `${s.n} ${f.label.toUpperCase()}${h ? ` - ${h.q}` : ""}${h?.ph ? ` - ${h.ph}` : ""}`;
                     return (
                       <div key={f.key}>
-                        <div className="mb-2 flex items-center gap-2">
-                          <label htmlFor={f.key} className="text-[17px] font-medium">{h?.q ?? f.label}</label>
-                          {h && (
-                            <button type="button" aria-label="O que é isso?" onClick={() => setOpenHelp(open ? null : f.key)}
-                              className="flex h-7 w-7 items-center justify-center rounded-full border border-ink text-[14px] font-bold">?</button>
-                          )}
-                        </div>
-                        {open && h && (
-                          <p className="mb-2 rounded-lg bg-tag p-3 text-[15px]">💡 {h.help}</p>
-                        )}
+                        <label htmlFor={f.key} className="mb-2 block text-[17px] font-medium">{label}</label>
                         {f.kind === "input" ? (
                           <input id={f.key} className="field-input text-[16px]" placeholder={h?.ph ?? f.placeholder} value={draft[f.key] ?? ""}
                             onChange={(e) => setDraft((d) => ({ ...d, [f.key]: e.target.value }))} />
@@ -191,6 +216,7 @@ function TemplatePage() {
                           <textarea id={f.key} className="field-input min-h-32 text-[16px]" placeholder={h?.ph} value={draft[f.key] ?? ""}
                             onChange={(e) => setDraft((d) => ({ ...d, [f.key]: e.target.value }))} />
                         )}
+                        {h && <p className="mt-2 text-[12px] text-muted-foreground"><b>? O que é isso:</b> {h.help}</p>}
                       </div>
                     );
                   })}
@@ -200,14 +226,23 @@ function TemplatePage() {
           </div>
         </section>
 
-        <div className="mt-20 flex flex-col items-center gap-5 border-t border-border pt-12">
-          <p className="text-center text-[17px]">Terminou? Clique no botão preto 👇</p>
-          <button className="btn-ink w-full px-8 py-4 text-[16px] sm:w-auto" onClick={() => generatePdf(draft)}>
-            <Download className="h-5 w-5" /> Baixar minha Pregação em PDF - Premium
-          </button>
-          <button className="text-[15px] underline underline-offset-4 text-muted-foreground hover:text-foreground" onClick={() => generatePdf(null)}>
-            Baixar Template Oficial em Branco (PDF)
-          </button>
+        <div className="mt-20 border-t border-border pt-12">
+          <p className="mb-6 text-center text-[17px]">Terminou? Escolha o que quer fazer 👇</p>
+          <div className="space-y-6">
+            <ActionButton v="ink" onClick={() => generatePdf(draft)}
+              sub="Baixa um arquivo bonito em PDF com tudo que você escreveu, para levar para o púlpito.">
+              📄 BAIXAR MINHA PREGAÇÃO QUE ACABEI DE ESCREVER EM PDF - COM TUDO QUE ESCREVI
+            </ActionButton>
+            <ActionButton v="whats" onClick={() => enviarWhatsApp(draft)}
+              sub="Vai abrir seu WhatsApp com sua pregação inteirinha já escrita. É só escolher para quem enviar. Vai tudo, nada cortado.">
+              💬 ENVIAR MINHA PREGAÇÃO QUE ESCREVI PARA MEU WHATSAPP - VAI TUDO QUE ESCREVI
+            </ActionButton>
+          </div>
+          <div className="mt-8 text-center">
+            <button className="text-[15px] underline underline-offset-4 text-muted-foreground hover:text-foreground" onClick={() => generatePdf(null)}>
+              Baixar as 12 caixinhas em branco para escrever à mão (PDF)
+            </button>
+          </div>
         </div>
       </main>
       <SiteFooter />
