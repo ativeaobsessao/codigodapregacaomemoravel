@@ -1,19 +1,26 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Instagram, Download, Check, ChevronDown } from "lucide-react";
+import { ArrowLeft, Instagram, Check, ChevronDown } from "lucide-react";
 import { STEPS, STORAGE_KEY, IG_HANDLE, IG_URL, type Draft } from "@/features/template/fields";
 import { ANA_EXAMPLE, FIELD_HELP } from "@/features/template/example";
 import { generatePdf } from "@/features/template/pdf";
+import { esbocoToDraft, saveDraft, enviarWhatsApp } from "@/features/template/share";
+import { ActionButton } from "@/features/template/ActionButton";
+import { getEsboco } from "@/features/esbocos/api";
 import { SiteFooter } from "@/components/SiteHeader";
 
 export const Route = createFileRoute("/template")({
+  validateSearch: (s: Record<string, unknown>): { personalizar?: string } =>
+    typeof s['personalizar'] === "string" ? { personalizar: s['personalizar'] } : {},
   head: () => ({
     meta: [
       { title: "Template Oficial — Código da Pregação Memorável" },
       { name: "description", content: "Preencha os 12 passos da sua pregação memorável com salvamento automático e baixe em PDF." },
       { property: "og:title", content: "Template Oficial — Código da Pregação Memorável" },
       { property: "og:description", content: "Editor dos 12 passos com auto-save e PDF premium." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: TemplatePage,
@@ -26,10 +33,13 @@ function readStore(): { data: Draft; savedAt?: string } | null {
 }
 
 function TemplatePage() {
+  const { personalizar } = Route.useSearch();
+  const navigate = useNavigate();
   const [draft, setDraft] = useState<Draft>({});
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [showEx, setShowEx] = useState(false);
   const [openHelp, setOpenHelp] = useState<string | null>(null);
+  const [banner, setBanner] = useState(false);
   const loaded = useRef(false);
 
   const save = (d: Draft) => {
@@ -39,9 +49,29 @@ function TemplatePage() {
   };
 
   useEffect(() => {
+    if (personalizar) {
+      getEsboco(personalizar)
+        .then((e) => {
+          if (!e) throw new Error();
+          const d = esbocoToDraft(e);
+          saveDraft(d, e.id);
+          setDraft(d); setSavedAt(now()); setBanner(true);
+        })
+        .catch(() => {
+          toast.error("Não conseguimos abrir esse esboço.");
+          const s = readStore();
+          if (s) setDraft(s.data ?? {});
+        })
+        .finally(() => {
+          loaded.current = true;
+          navigate({ to: "/template", search: {}, replace: true });
+        });
+      return;
+    }
     const s = readStore();
     if (s) { setDraft(s.data ?? {}); setSavedAt(s.savedAt ?? null); }
     loaded.current = true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
