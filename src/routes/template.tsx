@@ -38,7 +38,6 @@ function TemplatePage() {
   const [draft, setDraft] = useState<Draft>({});
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [showEx, setShowEx] = useState(false);
-  const [openHelp, setOpenHelp] = useState<string | null>(null);
   const [banner, setBanner] = useState(false);
   const loaded = useRef(false);
 
