@@ -1,9 +1,12 @@
-import type { ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
+import { useState, type ReactNode } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Copy } from "lucide-react";
 import type { Esboco } from "./types";
 import { Tag, PlanoBadge } from "./Tag";
-import { copyText, esbocoToText } from "./copy";
+import { copyText } from "./copy";
+import { ActionButton } from "@/features/template/ActionButton";
+import { esbocoToDraft, saveDraft, hasDraft, enviarWhatsApp } from "@/features/template/share";
+import { generatePdf } from "@/features/template/pdf";
 
 function Section({ n, title, copy, children }: { n: string; title: string; copy?: string | null; children: ReactNode }) {
   return (
@@ -49,6 +52,8 @@ function Point({ n, body, phrase }: { n: number; body: string | null; phrase: st
 }
 
 export function EsbocoView({ e }: { e: Esboco }) {
+  const navigate = useNavigate();
+  const [ask, setAsk] = useState(false);
   const tags = [...(e.tags_dor ?? []), ...(e.tags_tema ?? [])];
   const pontos = [
     [e.ponto1_dor, e.ponto1_frase_pratica],
@@ -56,14 +61,43 @@ export function EsbocoView({ e }: { e: Esboco }) {
     [e.ponto3_resposta, e.ponto3_frase_pratica],
   ].map(([b, p], i) => `Ponto ${i + 1}\n${b ?? ""}\nO que dizer na prática: ${p ?? ""}`).join("\n\n");
 
+  const usar = () => {
+    saveDraft(esbocoToDraft(e), e.id);
+    navigate({ to: "/template", search: { personalizar: e.id } });
+  };
+
   return (
     <article className="mx-auto max-w-[720px] px-6 py-12">
-      <div className="mb-10 flex items-center justify-between">
+      <div className="mb-8">
         <Link to="/" className="btn-line"><ArrowLeft className="h-4 w-4" /> Voltar</Link>
-        <button onClick={() => copyText(esbocoToText(e), "Esboço completo copiado")} className="btn-ink">
-          <Copy className="h-4 w-4" /> Copiar esboço completo
-        </button>
       </div>
+
+      <div className="mb-12 space-y-6">
+        <ActionButton v="ink" onClick={() => (hasDraft() ? setAsk(true) : usar())}
+          sub="Clique aqui e esse esboço vai abrir lá no seu passo a passo já preenchido. Você pode trocar o que quiser com suas palavras.">
+          ✨ QUERO USAR ESSE ESBOÇO E COLOCAR MINHAS PALAVRAS
+        </ActionButton>
+        <ActionButton v="whats" onClick={() => enviarWhatsApp(esbocoToDraft(e))}
+          sub="Vai abrir seu WhatsApp com o esboço inteirinho já escrito. É só escolher para quem enviar. Vai tudo, nada cortado.">
+          💬 ENVIAR ESSE ESBOÇO COMPLETO PARA MEU WHATSAPP - VAI TUDO
+        </ActionButton>
+        <ActionButton v="line" onClick={() => generatePdf(esbocoToDraft(e))}
+          sub="Baixa um arquivo bonito em PDF com a marca @codigodapregacaomemoravel para você levar para o púlpito.">
+          📄 BAIXAR ESSE ESBOÇO EM PDF PARA IMPRIMIR
+        </ActionButton>
+      </div>
+
+      {ask && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 p-6" role="dialog" aria-modal="true">
+          <div className="w-full max-w-md rounded-lg border border-ink bg-card p-6">
+            <p className="text-[18px] font-semibold">Você já tem uma pregação salva. Quer apagar e usar essa nova?</p>
+            <div className="mt-6 space-y-3">
+              <button className="btn-ink min-h-14 w-full justify-center text-[16px] font-bold" onClick={usar}>SIM, QUERO USAR ESSA NOVA</button>
+              <button className="btn-line min-h-14 w-full justify-center text-[16px] font-bold" onClick={() => setAsk(false)}>NÃO, MANTER A MINHA</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <span className="eyebrow text-muted-foreground">{[e.tempo_estimado, e.livro_biblico].filter(Boolean).join(" • ")}</span>

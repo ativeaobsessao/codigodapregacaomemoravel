@@ -37,6 +37,7 @@
   --color-ink: var(--ink);
   --color-paper: var(--paper);
   --color-success: var(--success);
+  --color-whatsapp: var(--whatsapp);
   --color-success-soft: var(--success-soft);
 }
 
@@ -66,6 +67,7 @@
   --tag: oklch(0.948 0.011 67);         /* #F3EDE7 */
   --gold: oklch(0.733 0.06 70);         /* #C4A484 */
   --success: oklch(0.52 0.12 150);
+  --whatsapp: #25D366;
   --success-soft: oklch(0.96 0.03 150);
 }
 
