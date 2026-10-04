@@ -15,7 +15,7 @@ function toValues(e: Esboco | null): Values {
 }
 
 function toRow(v: Values): Partial<EsbocoInput> {
-  const row: Record<string, unknown> = { plano: v.plano as Plano, status: v.status as Status };
+  const row: Record<string, unknown> = { plano: v['plano'] as Plano, status: v['status'] as Status };
   for (const f of FIELDS) {
     const s = v[f.key]?.trim() ?? "";
     row[f.key] = f.kind === "tags" ? s.split(",").map((x) => x.trim()).filter(Boolean) : s || null;
@@ -29,12 +29,12 @@ export function EsbocoForm({ editing, onDone, onCancel }: { editing: Esboco | nu
   useEffect(() => setV(toValues(editing)), [editing]);
 
   const set = (k: string, val: string) => setV((p) => ({ ...p, [k]: val }));
-  const words = (v.frase_final_cola ?? "").trim().split(/\s+/).filter(Boolean).length;
+  const words = (v['frase_final_cola'] ?? "").trim().split(/\s+/).filter(Boolean).length;
 
   async function submit(ev: React.FormEvent) {
     ev.preventDefault();
-    if (!v.tema?.trim()) return toast.error("Preencha o tema.");
-    if (words > 10) return toast.error("A frase final deve ter no máximo 10 palavras.");
+    if (!v['tema']?.trim()) { toast.error("Preencha o tema."); return; }
+    if (words > 10) { toast.error("A frase final deve ter no máximo 10 palavras."); return; }
     setBusy(true);
     try {
       if (editing) await updateEsboco(editing.id, toRow(v));
@@ -69,14 +69,14 @@ export function EsbocoForm({ editing, onDone, onCancel }: { editing: Esboco | nu
         ))}
         <label className="space-y-1.5">
           <span className="eyebrow text-muted-foreground">Plano</span>
-          <select value={v.plano} onChange={(e) => set("plano", e.target.value)} className="field-input">
+          <select value={v['plano']} onChange={(e) => set("plano", e.target.value)} className="field-input">
             <option value="basico">Básico</option>
             <option value="premium">Premium</option>
           </select>
         </label>
         <label className="space-y-1.5">
           <span className="eyebrow text-muted-foreground">Status</span>
-          <select value={v.status} onChange={(e) => set("status", e.target.value)} className="field-input">
+          <select value={v['status']} onChange={(e) => set("status", e.target.value)} className="field-input">
             <option value="publicado">Publicado</option>
             <option value="rascunho">Rascunho</option>
           </select>
