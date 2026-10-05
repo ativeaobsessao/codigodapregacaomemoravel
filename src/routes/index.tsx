@@ -31,7 +31,7 @@ function Home() {
         <TemplateCard />
 
         <section className="mx-auto max-w-3xl space-y-6 text-center">
-          <h1 className="font-serif text-[36px] leading-tight md:text-[40px]">Qual dor você vai pregar?</h1>
+          <h1 className="font-serif text-[36px] leading-tight md:text-[40px]">Qual temática você vai pregar?</h1>
           <SearchBar value={term} onChange={setTerm} />
           <FilterPills active={pill} onSelect={setPill} />
         </section>
