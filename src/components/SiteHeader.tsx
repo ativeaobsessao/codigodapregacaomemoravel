@@ -1,11 +1,12 @@
 import { Link } from "@tanstack/react-router";
+import { AccountButton } from "@/features/auth/AccountMenu";
 
 export function SiteHeader() {
   return (
     <header className="border-b border-border">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
         <Link to="/" className="text-[14px] font-bold uppercase tracking-[0.08em]">Código da Pregação Memorável</Link>
-        <Link to="/admin" className="btn-line">Acesso Admin</Link>
+        <AccountButton />
       </div>
     </header>
   );
