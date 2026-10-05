@@ -65,7 +65,7 @@ export function BibliotecaAtual({ onChange }: { onChange: () => void }) {
             {isLoading && <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">Carregando…</td></tr>}
             {rows.map((e) => (
               <tr key={e.id} className="border-b border-border last:border-0">
-                <td className="p-4" title={e.tema}>{trunc(e.tema ?? "")}</td>
+                <td className="p-4" title={e.tema ?? undefined}>{trunc(e.tema ?? "")}</td>
                 <td className="p-4 text-muted-foreground">{e.tempo_estimado ?? "—"}</td>
                 <td className="p-4 text-muted-foreground">{e.plano}</td>
                 <td className="whitespace-nowrap p-4 text-muted-foreground">{new Date(e.created_at).toLocaleDateString("pt-BR")}</td>
