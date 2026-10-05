@@ -75,3 +75,9 @@ export async function deleteEsboco(id: string) {
   const { error } = await db().from(TABLE).delete().eq("id", id);
   if (error) throw error;
 }
+
+export async function listAllEsbocos() {
+  const { data, error } = await db().from(TABLE).select("*").order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as Esboco[];
+}
