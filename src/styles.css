@@ -59,7 +59,7 @@
   --muted-foreground: oklch(0.533 0 0); /* #6B6B6B */
   --accent: oklch(0.948 0.011 67);
   --accent-foreground: var(--ink);
-  --destructive: oklch(0.55 0.18 27);
+  --destructive: #DC2626;
   --destructive-foreground: var(--paper);
   --border: oklch(0.926 0.008 75);      /* #EAE6E1 */
   --input: oklch(0.926 0.008 75);

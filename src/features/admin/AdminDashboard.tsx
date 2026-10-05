@@ -5,6 +5,7 @@ import type { Esboco } from "@/features/esbocos/types";
 import { JsonImport } from "./JsonImport";
 import { EsbocoForm } from "./EsbocoForm";
 import { EsbocosTable } from "./EsbocosTable";
+import { BibliotecaAtual } from "./BibliotecaAtual";
 
 export function AdminDashboard() {
   const qc = useQueryClient();
@@ -28,6 +29,8 @@ export function AdminDashboard() {
       <div id="form">
         <EsbocoForm editing={editing} onDone={() => { setEditing(null); refresh(); }} onCancel={() => setEditing(null)} />
       </div>
+
+      <BibliotecaAtual onChange={refresh} />
 
       <EsbocosTable
         onEdit={(e) => { setEditing(e); document.getElementById("form")?.scrollIntoView({ behavior: "smooth" }); }}
