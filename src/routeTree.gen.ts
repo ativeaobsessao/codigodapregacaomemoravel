@@ -16,6 +16,7 @@ import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as TemplateRouteImport } from './routes/template'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as EsbocoIdRouteImport } from './routes/esboco.$id'
+import { Route as ApiPublicWebhookKiwifyRouteImport } from './routes/api/public/webhook-kiwify'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -52,6 +53,11 @@ const EsbocoIdRoute = EsbocoIdRouteImport.update({
   path: '/esboco/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWebhookKiwifyRoute = ApiPublicWebhookKiwifyRouteImport.update({
+  id: '/api/public/webhook-kiwify',
+  path: '/api/public/webhook-kiwify',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/template': typeof TemplateRoute
   '/termos': typeof TermosRoute
   '/esboco/$id': typeof EsbocoIdRoute
+  '/api/public/webhook-kiwify': typeof ApiPublicWebhookKiwifyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/template': typeof TemplateRoute
   '/termos': typeof TermosRoute
   '/esboco/$id': typeof EsbocoIdRoute
+  '/api/public/webhook-kiwify': typeof ApiPublicWebhookKiwifyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +88,7 @@ export interface FileRoutesById {
   '/template': typeof TemplateRoute
   '/termos': typeof TermosRoute
   '/esboco/$id': typeof EsbocoIdRoute
+  '/api/public/webhook-kiwify': typeof ApiPublicWebhookKiwifyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/template'
     | '/termos'
     | '/esboco/$id'
+    | '/api/public/webhook-kiwify'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/template'
     | '/termos'
     | '/esboco/$id'
+    | '/api/public/webhook-kiwify'
   id:
     | '__root__'
     | '/'
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/template'
     | '/termos'
     | '/esboco/$id'
+    | '/api/public/webhook-kiwify'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +131,7 @@ export interface RootRouteChildren {
   TemplateRoute: typeof TemplateRoute
   TermosRoute: typeof TermosRoute
   EsbocoIdRoute: typeof EsbocoIdRoute
+  ApiPublicWebhookKiwifyRoute: typeof ApiPublicWebhookKiwifyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -172,6 +185,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EsbocoIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/webhook-kiwify': {
+      id: '/api/public/webhook-kiwify'
+      path: '/api/public/webhook-kiwify'
+      fullPath: '/api/public/webhook-kiwify'
+      preLoaderRoute: typeof ApiPublicWebhookKiwifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -183,6 +203,7 @@ const rootRouteChildren: RootRouteChildren = {
   TemplateRoute: TemplateRoute,
   TermosRoute: TermosRoute,
   EsbocoIdRoute: EsbocoIdRoute,
+  ApiPublicWebhookKiwifyRoute: ApiPublicWebhookKiwifyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
