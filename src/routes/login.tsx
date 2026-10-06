@@ -32,18 +32,18 @@ function LoginPage() {
 
   async function entrar(e: React.FormEvent) {
     e.preventDefault();
-    if (!aceito) return toast.error("Marque que você concorda com a Política de Privacidade e os Termos.");
+    if (!aceito) { toast.error("Marque que você concorda com a Política de Privacidade e os Termos."); return; }
     setBusy(true);
     const { error } = await db().auth.signInWithPassword({ email: email.trim(), password: senha });
-    if (error) { setBusy(false); return toast.error("E-mail ou senha incorretos."); }
+    if (error) { setBusy(false); { toast.error("E-mail ou senha incorretos."); return; } }
     await registrarConsentimento();
     setBusy(false);
     navigate({ to: "/" });
   }
 
   async function magicLink() {
-    if (!aceito) return toast.error("Marque que você concorda com a Política de Privacidade e os Termos.");
-    if (!email.trim()) return toast.error("Digite seu e-mail.");
+    if (!aceito) { toast.error("Marque que você concorda com a Política de Privacidade e os Termos."); return; }
+    if (!email.trim()) { toast.error("Digite seu e-mail."); return; }
     setBusy(true);
     localStorage.setItem("lgpd_consent_pending", "1");
     const { error } = await db().auth.signInWithOtp({
@@ -51,7 +51,7 @@ function LoginPage() {
       options: { emailRedirectTo: window.location.origin, shouldCreateUser: false },
     });
     setBusy(false);
-    if (error) return toast.error("Não encontramos uma compra com esse e-mail.");
+    if (error) { toast.error("Não encontramos uma compra com esse e-mail."); return; }
     toast.success("✅ Enviamos um link de acesso para seu e-mail.");
   }
 
