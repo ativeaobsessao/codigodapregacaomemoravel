@@ -33,7 +33,7 @@ function assinaturaOk(raw: string, url: URL, token: string) {
 
 export async function liberarAcesso(email: string, plano: Plano) {
   const url = process.env["SUPABASE_URL"] ?? "https://npmnewspddzqqahngapk.supabase.co";
-  const admin = createClient(url, process.env["SUPABASE_SERVICE_ROLE_KEY"]!, { auth: { persistSession: false, autoRefreshToken: false } });
+  const admin = createClient(url, process.env["CPM_SERVICE_ROLE_KEY"]!, { auth: { persistSession: false, autoRefreshToken: false } });
   const mail = email.trim().toLowerCase();
 
   let { data: perfil } = await admin.from("profiles").select("id, plano").eq("email", mail).maybeSingle();
@@ -56,8 +56,8 @@ export const Route = createFileRoute("/api/public/webhook-kiwify")({
       POST: async ({ request }) => {
         const raw = await request.text();
         const token = process.env["KIWIFY_TOKEN"];
-        if (!token || !process.env["SUPABASE_SERVICE_ROLE_KEY"]) {
-          console.error("[webhook-kiwify] faltam KIWIFY_TOKEN ou SUPABASE_SERVICE_ROLE_KEY");
+        if (!token || !process.env["CPM_SERVICE_ROLE_KEY"]) {
+          console.error("[webhook-kiwify] faltam KIWIFY_TOKEN ou CPM_SERVICE_ROLE_KEY");
           return new Response("not configured", { status: 500 });
         }
         if (!assinaturaOk(raw, new URL(request.url), token)) {
