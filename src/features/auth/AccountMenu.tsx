@@ -25,12 +25,12 @@ export function AccountButton() {
 
   async function savePw(e: React.FormEvent) {
     e.preventDefault();
-    if (pw.length < 6) return toast.error("A senha precisa ter pelo menos 6 caracteres.");
-    if (pw !== pw2) return toast.error("As duas senhas não são iguais.");
+    if (pw.length < 6) { toast.error("A senha precisa ter pelo menos 6 caracteres."); return; }
+    if (pw !== pw2) { toast.error("As duas senhas não são iguais."); return; }
     setBusy(true);
     const { error } = await db().auth.updateUser({ password: pw });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("✅ Senha alterada!");
     setPw(""); setPw2(""); setPwOpen(false);
   }
@@ -38,10 +38,10 @@ export function AccountButton() {
   async function upload(f: File) {
     const path = `${user!.id}/avatar-${Date.now()}.${f.name.split(".").pop() || "jpg"}`;
     const { error } = await db().storage.from("avatars").upload(path, f, { upsert: true });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     const url = db().storage.from("avatars").getPublicUrl(path).data.publicUrl;
     const { error: e2 } = await db().from("profiles").update({ avatar_url: url }).eq("id", user!.id);
-    if (e2) return toast.error(e2.message);
+    if (e2) { toast.error(e2.message); return; }
     await reload();
     toast.success("✅ Foto atualizada!");
   }
@@ -49,7 +49,7 @@ export function AccountButton() {
   async function pedirExclusao() {
     if (!confirm("Quer mesmo pedir a exclusão dos seus dados? Seu acesso será encerrado.")) return;
     const { error } = await db().from("profiles").update({ status: "solicitou_exclusao" }).eq("id", user!.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Pedido de exclusão registrado.");
     await reload();
   }
