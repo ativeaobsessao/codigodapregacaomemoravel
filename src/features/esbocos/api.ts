@@ -14,7 +14,7 @@ function tagVariants(v: string) {
 }
 
 export async function searchEsbocos(term: string, pill: string | null): Promise<Esboco[]> {
-  let q = db().from(TABLE).select("*").eq("status", "publicado").order("created_at", { ascending: false });
+  let q = db().from("esbocos_catalogo").select("*").order("created_at", { ascending: false });
 
   const t = term.trim().replace(/[,()%]/g, " ").trim();
   if (t) {

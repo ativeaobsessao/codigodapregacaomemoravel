@@ -47,7 +47,7 @@ function Home() {
             </div>
           ) : data && data.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-3">
-              {data.map((e) => <EsbocoCard key={e.id} e={e} />)}
+              {data.map((e) => <EsbocoCard key={e.id} e={e} locked={e.plano === "premium" && !podePremium} />)}
             </div>
           ) : (
             <div className="rounded-lg border border-border bg-card px-6 py-16 text-center">
