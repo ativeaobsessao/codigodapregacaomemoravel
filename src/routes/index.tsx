@@ -5,6 +5,7 @@ import { TemplateCard } from "@/features/template/TemplateCard";
 import { SearchBar, FilterPills } from "@/features/search/SearchBar";
 import { useEsbocosSearch } from "@/features/search/useEsbocosSearch";
 import { EsbocoCard } from "@/features/esbocos/EsbocoCard";
+import { useAuth } from "@/features/auth/useAuth";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -23,6 +24,8 @@ function Home() {
   const [pill, setPill] = useState<string | null>(null);
   const { data, isLoading, error } = useEsbocosSearch(term, pill);
   const query = term || pill || "";
+  const { profile } = useAuth();
+  const podePremium = profile?.role === "admin" || profile?.plano === "premium";
 
   return (
     <div className="min-h-screen">
@@ -47,7 +50,7 @@ function Home() {
             </div>
           ) : data && data.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-3">
-              {data.map((e) => <EsbocoCard key={e.id} e={e} />)}
+              {data.map((e) => <EsbocoCard key={e.id} e={e} locked={e.plano === "premium" && !podePremium} />)}
             </div>
           ) : (
             <div className="rounded-lg border border-border bg-card px-6 py-16 text-center">
