@@ -33,6 +33,10 @@ export function useAuth() {
     };
     db().auth.getSession().then(({ data }) => load(data.session?.user ?? null));
     const { data: sub } = db().auth.onAuthStateChange((ev, s) => {
+      if (ev === "SIGNED_IN" && s && localStorage.getItem("lgpd_consent_pending")) {
+        localStorage.removeItem("lgpd_consent_pending");
+        db().from("profiles").update({ lgpd_consent_at: new Date().toISOString() }).eq("id", s.user.id).then(() => {});
+      }
       if (ev === "SIGNED_IN" || ev === "SIGNED_OUT" || ev === "USER_UPDATED") load(s?.user ?? null);
     });
     return () => { alive = false; sub.subscription.unsubscribe(); };
