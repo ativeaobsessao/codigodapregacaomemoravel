@@ -34,6 +34,6 @@ npm run dev
 2. **Para criar primeiro admin:** Supabase Dashboard > Authentication > Add User > crie email/senha > depois Table Editor > profiles > edite role para admin e plano para premium.
 3. Webhook Kiwify (Produtos > Webhook > Venda Aprovada):
    `https://codigodapregacaomemoravel.lovable.app/api/public/webhook-kiwify`
-   Use o mesmo token da Kiwify no segredo `KIWIFY_TOKEN`. Valores: 19,90 = básico; 24,90 e 29,90 = premium.
+   Use o mesmo token da Kiwify no segredo `KIWIFY_TOKEN` (e a chave service_role em `CPM_SERVICE_ROLE_KEY`). Valores: 19,90 = básico; 24,90 e 29,90 = premium.
    Outros gateways: POST `{ "email": "...", "plano": "basico|premium" }` em `.../webhook-kiwify?token=SEU_TOKEN`.
 4. Subir esboço diário pelo /admin não precisa de deploy.
