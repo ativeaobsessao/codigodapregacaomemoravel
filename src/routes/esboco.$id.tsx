@@ -43,7 +43,12 @@ function EsbocoPage() {
       ) : error ? (
         msg((error as Error).message, "/")
       ) : !data ? (
-        msg("🔒 Este esboço é do plano Premium.", "/")
+        <div className="mx-auto max-w-xl px-6 py-24 text-center">
+          <h1 className="font-serif text-2xl">🔒 Tenha acesso a este esboço com o plano Premium</h1>
+          <p className="mt-4 text-muted-foreground">Faça o upgrade para o plano Premium e tenha acesso a este e aos demais esboços exclusivos.</p>
+          <p className="mt-3 text-muted-foreground">A opção de upgrade estará disponível em breve.</p>
+          <Link to="/" className="btn-ink mt-6">Voltar para biblioteca</Link>
+        </div>
       ) : (
         <EsbocoView e={data} />
       )}
