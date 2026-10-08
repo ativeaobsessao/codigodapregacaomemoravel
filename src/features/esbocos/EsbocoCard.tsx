@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import type { Esboco } from "./types";
-import { Tag, PlanoBadge } from "./Tag";
+import { Tag } from "./Tag";
 
 export function EsbocoCard({ e, locked = false }: { e: Esboco; locked?: boolean }) {
   const meta = [e.tempo_estimado, e.livro_biblico].filter(Boolean).join(" • ");
@@ -13,7 +13,7 @@ export function EsbocoCard({ e, locked = false }: { e: Esboco; locked?: boolean 
     >
       <div className="flex items-start justify-between gap-3">
         <span className="eyebrow text-muted-foreground">{meta || "Esboço"}</span>
-        <span className="flex items-center gap-2">{locked && <span aria-label="Bloqueado no seu plano">🔒</span>}<PlanoBadge plano={e.plano} /></span>
+        {locked && <span aria-label="Bloqueado no seu plano">🔒</span>}
       </div>
       <h3 className="font-serif text-[22px] leading-tight text-foreground">{e.tema}</h3>
       {tags.length > 0 && (

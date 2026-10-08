@@ -2,7 +2,7 @@ import { useState, type ReactNode } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Copy } from "lucide-react";
 import type { Esboco } from "./types";
-import { Tag, PlanoBadge } from "./Tag";
+import { Tag } from "./Tag";
 import { copyText } from "./copy";
 import { ActionButton } from "@/features/template/ActionButton";
 import { esbocoToDraft, saveDraft, hasDraft, enviarWhatsApp } from "@/features/template/share";
@@ -101,7 +101,6 @@ export function EsbocoView({ e }: { e: Esboco }) {
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <span className="eyebrow text-muted-foreground">{[e.tempo_estimado, e.livro_biblico].filter(Boolean).join(" • ")}</span>
-        <PlanoBadge plano={e.plano} />
       </div>
       <h1 className="font-serif text-[36px] leading-[1.15]">{e.tema}</h1>
       {tags.length > 0 && <div className="mt-5 flex flex-wrap gap-2">{tags.map((t) => <Tag key={t}>{t}</Tag>)}</div>}
