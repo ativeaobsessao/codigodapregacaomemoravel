@@ -39,7 +39,7 @@ function TemplatePage() {
   return <TemplateEditor personalizar={personalizar} />;
 }
 
-export function TemplateEditor({ personalizar, memberDraftId }: { personalizar?: string; memberDraftId?: string }) {
+export function TemplateEditor({ personalizar, memberDraftId }: { personalizar?: string | undefined; memberDraftId?: string | undefined }) {
   const navigate = useNavigate();
   const [localDraft, setLocalDraft] = useState<Draft>({});
   const member = useMemberDraft(memberDraftId);
@@ -95,7 +95,7 @@ export function TemplateEditor({ personalizar, memberDraftId }: { personalizar?:
   };
   const clear = () => {
     if (!confirm("Apagar todo o conteúdo do template?")) return;
-    if (memberDraftId) { setDraft({}); return; }
+    if (memberDraftId) { setDraft(editableDraft({})); return; }
     localStorage.removeItem(STORAGE_KEY);
     loaded.current = false;
     setDraft({});

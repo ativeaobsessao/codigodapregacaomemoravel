@@ -10,6 +10,8 @@ export const Route = createFileRoute("/admin")({
       { name: "description", content: "Adicione e gerencie esboços em 30 segundos." },
       { property: "og:title", content: "Central de Escala" },
       { property: "og:description", content: "Área administrativa de esboços." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],
   }),

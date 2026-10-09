@@ -7,10 +7,11 @@ vi.mock("@/features/esbocos/api", () => ({ getEsboco: mocks.original }));
 import { AUTOSAVE_DELAY, draftProgress, resumeMemberDraft, saveMemberDraft } from "./member-drafts";
 
 function query(result: unknown) {
-  const q: Record<string, ReturnType<typeof vi.fn>> = {};
-  for (const name of ["select", "eq", "neq", "order", "limit", "insert", "update"]) q[name] = vi.fn(() => q);
-  q.maybeSingle = vi.fn().mockResolvedValue(result);
-  q.single = vi.fn().mockResolvedValue(result);
+  const q = {
+    select: vi.fn(), eq: vi.fn(), neq: vi.fn(), order: vi.fn(), limit: vi.fn(), insert: vi.fn(), update: vi.fn(),
+    maybeSingle: vi.fn().mockResolvedValue(result), single: vi.fn().mockResolvedValue(result),
+  };
+  for (const method of [q.select, q.eq, q.neq, q.order, q.limit, q.insert, q.update]) method.mockReturnValue(q);
   return q;
 }
 
