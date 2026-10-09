@@ -14,6 +14,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Encontre em segundos o esboço certo para a dor que você vai pregar. Biblioteca editorial para mulheres pregadoras." },
       { property: "og:title", content: "Código da Pregação Memorável" },
       { property: "og:description", content: "Esboços de pregação organizados por dor, prontos para usar." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Home,

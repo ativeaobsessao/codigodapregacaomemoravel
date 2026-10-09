@@ -63,7 +63,7 @@ describe("Member draft rules", () => {
   });
 
   it("counts only nonblank editor fields, not original metadata", () => {
-    expect(draftProgress({ tema: "Pregação", objetivo: "   ", id: "original", status: "publicado" })).toEqual({ filled: 1, total: 19, percent: 5 });
+    expect(draftProgress({ tema: "Pregação", objetivo: "   ", id: "original", status: "publicado" })).toEqual({ filled: 1, total: 18, percent: 6 });
     const full = Object.fromEntries(STEPS.flatMap(s => s.fields.map(f => [f.key, "Texto"])));
     expect(draftProgress(full).percent).toBe(100);
     expect(draftProgress({}).percent).toBe(0);

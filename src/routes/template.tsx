@@ -51,7 +51,6 @@ export function TemplateEditor({ personalizar, memberDraftId }: { personalizar?:
   const progress = draftProgress(draft);
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [showEx, setShowEx] = useState(false);
-  const [banner, setBanner] = useState(false);
   const loaded = useRef(false);
 
   const save = (d: Draft) => {
@@ -72,7 +71,6 @@ export function TemplateEditor({ personalizar, memberDraftId }: { personalizar?:
           toast.error("Não conseguimos abrir esse esboço.");
           const s = readStore();
           if (s) setDraft(s.data ?? {});
-        })
         });
       return;
     }
@@ -126,11 +124,6 @@ export function TemplateEditor({ personalizar, memberDraftId }: { personalizar?:
       </header>
 
       <main className="mx-auto max-w-[900px] px-6 py-14">
-        {banner && (
-          <div className="mb-10 rounded-lg border border-success bg-success-soft p-5 text-[17px] text-success">
-            ✅ Você clicou em QUERO USAR ESSE ESBOÇO. Esse esboço foi copiado aqui para baixo. Agora é só trocar o que quiser com suas palavras. Tudo salva sozinho.
-          </div>
-        )}
         <h1 className="font-serif text-[36px] leading-tight md:text-[44px]">{memberDraftId ? "Minhas Palavras" : "Template para uma pregação memorável"}</h1>
         <p className="mt-4 text-[18px] text-foreground">
           Preencha as 12 caixinhas abaixo com suas palavras e baixe sua pregação pronta em PDF. Tudo salva sozinho.
