@@ -5,10 +5,12 @@ import { ArrowLeft, Instagram, Check, ChevronDown } from "lucide-react";
 import { STEPS, STORAGE_KEY, IG_HANDLE, IG_URL, type Draft } from "@/features/template/fields";
 import { ANA_EXAMPLE, FIELD_HELP } from "@/features/template/example";
 import { generatePdf } from "@/features/template/pdf";
-import { esbocoToDraft, saveDraft, enviarWhatsApp } from "@/features/template/share";
+import { enviarWhatsApp } from "@/features/template/share";
 import { ActionButton } from "@/features/template/ActionButton";
-import { getEsboco } from "@/features/esbocos/api";
 import { SiteFooter } from "@/components/SiteHeader";
+import { draftProgress, editableDraft, resumeMemberDraft } from "@/features/template/member-drafts";
+import { useMemberDraft } from "@/features/template/useMemberDraft";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/template")({
   validateSearch: (s: Record<string, unknown>): { personalizar?: string } =>
@@ -34,36 +36,43 @@ function readStore(): { data: Draft; savedAt?: string } | null {
 
 function TemplatePage() {
   const { personalizar } = Route.useSearch();
+  return <TemplateEditor personalizar={personalizar} />;
+}
+
+export function TemplateEditor({ personalizar, memberDraftId }: { personalizar?: string; memberDraftId?: string }) {
   const navigate = useNavigate();
-  const [draft, setDraft] = useState<Draft>({});
+  const [localDraft, setLocalDraft] = useState<Draft>({});
+  const member = useMemberDraft(memberDraftId);
+  const draft = memberDraftId ? member.content : localDraft;
+  const setDraft = (next: Draft | ((prev: Draft) => Draft)) => {
+    const value = typeof next === "function" ? next(draft) : next;
+    if (memberDraftId) member.change(value); else setLocalDraft(value);
+  };
+  const progress = draftProgress(draft);
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [showEx, setShowEx] = useState(false);
   const [banner, setBanner] = useState(false);
   const loaded = useRef(false);
 
   const save = (d: Draft) => {
+    if (memberDraftId) { void member.save(); return; }
     const t = now();
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ data: d, savedAt: t }));
     setSavedAt(t);
   };
 
   useEffect(() => {
+    if (memberDraftId) return;
     if (personalizar) {
-      getEsboco(personalizar)
-        .then((e) => {
-          if (!e) throw new Error();
-          const d = esbocoToDraft(e);
-          saveDraft(d, e.id);
-          setDraft(d); setSavedAt(now()); setBanner(true);
+      resumeMemberDraft(personalizar)
+        .then((row) => {
+          navigate({ to: "/editor-membro/$id", params: { id: row.id }, replace: true });
         })
         .catch(() => {
           toast.error("Não conseguimos abrir esse esboço.");
           const s = readStore();
           if (s) setDraft(s.data ?? {});
         })
-        .finally(() => {
-          loaded.current = true;
-          navigate({ to: "/template", search: {}, replace: true });
         });
       return;
     }
@@ -74,17 +83,21 @@ function TemplatePage() {
   }, []);
 
   useEffect(() => {
-    if (!loaded.current) return;
+    if (memberDraftId || !loaded.current) return;
     const id = setTimeout(() => save(draft), 800);
     return () => clearTimeout(id);
-  }, [draft]);
+  }, [draft, memberDraftId]);
 
   const restore = () => {
+    if (memberDraftId && member.record) {
+      setDraft(editableDraft(member.record.conteudo_json)); return;
+    }
     const s = readStore();
     if (s) { setDraft(s.data ?? {}); toast.success("Rascunho restaurado"); } else toast.error("Nenhum rascunho salvo");
   };
   const clear = () => {
     if (!confirm("Apagar todo o conteúdo do template?")) return;
+    if (memberDraftId) { setDraft({}); return; }
     localStorage.removeItem(STORAGE_KEY);
     loaded.current = false;
     setDraft({});
@@ -92,6 +105,14 @@ function TemplatePage() {
     setTimeout(() => (loaded.current = true), 900);
     toast.success("Template limpo");
   };
+
+  if (memberDraftId && !member.record) {
+    return <div className="mx-auto max-w-[900px] px-6 py-14">
+      <Link to="/" className="btn-line"><ArrowLeft className="h-4 w-4" /> Voltar</Link>
+      <p className="mt-8 font-serif text-2xl" role={member.error ? "alert" : "status"}>{member.error ?? "Carregando suas palavras…"}</p>
+      {member.error && <Link to="/login" className="btn-ink mt-6">Acessar Plataforma</Link>}
+    </div>;
+  }
 
   return (
     <div className="min-h-screen">
@@ -110,7 +131,7 @@ function TemplatePage() {
             ✅ Você clicou em QUERO USAR ESSE ESBOÇO. Esse esboço foi copiado aqui para baixo. Agora é só trocar o que quiser com suas palavras. Tudo salva sozinho.
           </div>
         )}
-        <h1 className="font-serif text-[36px] leading-tight md:text-[44px]">Template para uma pregação memorável</h1>
+        <h1 className="font-serif text-[36px] leading-tight md:text-[44px]">{memberDraftId ? "Minhas Palavras" : "Template para uma pregação memorável"}</h1>
         <p className="mt-4 text-[18px] text-foreground">
           Preencha as 12 caixinhas abaixo com suas palavras e baixe sua pregação pronta em PDF. Tudo salva sozinho.
         </p>
@@ -188,12 +209,14 @@ function TemplatePage() {
 
           <div className="sticky top-0 z-10 -mx-6 mt-6 flex flex-wrap items-center gap-3 border-b border-border bg-background px-6 py-3">
             <span className="inline-flex items-center gap-1 rounded-lg bg-success-soft px-3 py-2 text-[14px] font-medium text-success">
-              ✅ Fique tranquila, tudo que você digitar aqui fica salvo sozinho. Pode fechar e voltar depois.{savedAt ? ` (${savedAt})` : ""}
+              {memberDraftId ? (member.state === "error" ? "Não foi possível salvar. Tente Salvar Agora." : member.state === "saved" ? `✅ Salvo na sua conta (${member.record ? new Date(member.record.updated_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : ""})` : member.state === "saving" ? "Salvando…" : "Alterações ainda não salvas…") : <>✅ Fique tranquila, tudo que você digitar aqui fica salvo sozinho. Pode fechar e voltar depois.{savedAt ? ` (${savedAt})` : ""}</>}
             </span>
-            <button className="btn-line" onClick={() => { save(draft); toast.success("Salvo"); }}>Salvar Agora</button>
-            <button className="btn-line" onClick={restore}>Restaurar Rascunho</button>
-            <button className="btn-line" onClick={clear}>Limpar Tudo</button>
+            <Button variant="outline" className="btn-line shadow-none" onClick={() => { save(draft); if (!memberDraftId) toast.success("Salvo"); }}>Salvar Agora</Button>
+            <Button variant="outline" className="btn-line shadow-none" onClick={restore}>Restaurar Rascunho</Button>
+            <Button variant="outline" className="btn-line shadow-none" onClick={clear}>Limpar Tudo</Button>
+            {memberDraftId && <span role="status" className="text-[14px] text-muted-foreground">{progress.filled} de {progress.total} campos preenchidos · {progress.percent}%</span>}
           </div>
+          {memberDraftId && member.error && <p role="alert" className="mt-4 text-destructive">{member.error}</p>}
 
           <div className="mt-8 space-y-12">
             {STEPS.map((s) => (
