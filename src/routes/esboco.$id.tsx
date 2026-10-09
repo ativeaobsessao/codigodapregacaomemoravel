@@ -12,6 +12,8 @@ export const Route = createFileRoute("/esboco/$id")({
       { name: "description", content: "Esboço completo em 12 passos, pronto para pregar e copiar." },
       { property: "og:title", content: "Esboço — Código da Pregação Memorável" },
       { property: "og:description", content: "Esboço completo em 12 passos, pronto para pregar." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: EsbocoPage,

@@ -15,6 +15,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as TemplateRouteImport } from './routes/template'
 import { Route as TermosRouteImport } from './routes/termos'
+import { Route as EditorMembroIdRouteImport } from './routes/editor-membro.$id'
 import { Route as EsbocoIdRouteImport } from './routes/esboco.$id'
 import { Route as ApiPublicWebhookKiwifyRouteImport } from './routes/api/public/webhook-kiwify'
 
@@ -48,6 +49,11 @@ const TermosRoute = TermosRouteImport.update({
   path: '/termos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EditorMembroIdRoute = EditorMembroIdRouteImport.update({
+  id: '/editor-membro/$id',
+  path: '/editor-membro/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EsbocoIdRoute = EsbocoIdRouteImport.update({
   id: '/esboco/$id',
   path: '/esboco/$id',
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/privacidade': typeof PrivacidadeRoute
   '/template': typeof TemplateRoute
   '/termos': typeof TermosRoute
+  '/editor-membro/$id': typeof EditorMembroIdRoute
   '/esboco/$id': typeof EsbocoIdRoute
   '/api/public/webhook-kiwify': typeof ApiPublicWebhookKiwifyRoute
 }
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/privacidade': typeof PrivacidadeRoute
   '/template': typeof TemplateRoute
   '/termos': typeof TermosRoute
+  '/editor-membro/$id': typeof EditorMembroIdRoute
   '/esboco/$id': typeof EsbocoIdRoute
   '/api/public/webhook-kiwify': typeof ApiPublicWebhookKiwifyRoute
 }
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/privacidade': typeof PrivacidadeRoute
   '/template': typeof TemplateRoute
   '/termos': typeof TermosRoute
+  '/editor-membro/$id': typeof EditorMembroIdRoute
   '/esboco/$id': typeof EsbocoIdRoute
   '/api/public/webhook-kiwify': typeof ApiPublicWebhookKiwifyRoute
 }
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/template'
     | '/termos'
+    | '/editor-membro/$id'
     | '/esboco/$id'
     | '/api/public/webhook-kiwify'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/template'
     | '/termos'
+    | '/editor-membro/$id'
     | '/esboco/$id'
     | '/api/public/webhook-kiwify'
   id:
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/template'
     | '/termos'
+    | '/editor-membro/$id'
     | '/esboco/$id'
     | '/api/public/webhook-kiwify'
   fileRoutesById: FileRoutesById
@@ -130,6 +142,7 @@ export interface RootRouteChildren {
   PrivacidadeRoute: typeof PrivacidadeRoute
   TemplateRoute: typeof TemplateRoute
   TermosRoute: typeof TermosRoute
+  EditorMembroIdRoute: typeof EditorMembroIdRoute
   EsbocoIdRoute: typeof EsbocoIdRoute
   ApiPublicWebhookKiwifyRoute: typeof ApiPublicWebhookKiwifyRoute
 }
@@ -178,6 +191,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/editor-membro/$id': {
+      id: '/editor-membro/$id'
+      path: '/editor-membro/$id'
+      fullPath: '/editor-membro/$id'
+      preLoaderRoute: typeof EditorMembroIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/esboco/$id': {
       id: '/esboco/$id'
       path: '/esboco/$id'
@@ -202,6 +222,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacidadeRoute: PrivacidadeRoute,
   TemplateRoute: TemplateRoute,
   TermosRoute: TermosRoute,
+  EditorMembroIdRoute: EditorMembroIdRoute,
   EsbocoIdRoute: EsbocoIdRoute,
   ApiPublicWebhookKiwifyRoute: ApiPublicWebhookKiwifyRoute,
 }
